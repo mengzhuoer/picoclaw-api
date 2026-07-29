@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🦞 PicoClaw API</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="app">
+    <!-- ═══ 顶部栏 ═══ -->
+    <header class="topbar">
+      <div class="brand">🦞 PicoClaw API</div>
+
+      <!-- 提供商切换器 — 点击呼出命令面板 -->
+      <div class="provider-trigger" id="provider-trigger" onclick="openSwitcher()">
+        <span id="trigger-icon" class="trigger-icon">🔮</span>
+        <span id="trigger-name" class="trigger-name">选择提供商...</span>
+        <span id="trigger-model" class="trigger-model"></span>
+        <svg class="trigger-arrow" width="12" height="12" viewBox="0 0 12 12">
+          <path d="M2 4l4 4 4-4" stroke="currentColor" fill="none" stroke-width="1.5"/>
+        </svg>
+      </div>
+
+      <div class="header-status">
+        <span id="health-dot" class="dot"></span>
+      </div>
+    </header>
+
+    <!-- ═══ 对话区 ═══ -->
+    <main class="chat-main">
+      <div id="chat-box" class="chat-box">
+        <div class="chat-msg msg-system">
+          🦞 按 <kbd>Ctrl</kbd>+<kbd>K</kbd> 或点击顶部栏切换 AI 提供商
+        </div>
+      </div>
+
+      <form id="chat-form" class="chat-form">
+        <input type="text" id="chat-input" placeholder="输入消息..." autocomplete="off" disabled>
+        <button type="submit" id="chat-send" disabled>发送</button>
+      </form>
+    </main>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       提供商切换面板（命令面板风格）
+       ═══════════════════════════════════════════════ -->
+  <div id="switcher-overlay" class="switcher-overlay hidden" onclick="closeSwitcherOutside(event)">
+    <div class="switcher-panel" onclick="event.stopPropagation()">
+
+      <!-- 搜索框 -->
+      <div class="switcher-search">
+        <svg width="16" height="16" viewBox="0 0 16 16">
+          <circle cx="7" cy="7" r="5" stroke="currentColor" fill="none" stroke-width="1.5"/>
+          <path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        <input type="text" id="switcher-input" placeholder="搜索提供商或输入名称..." autocomplete="off">
+        <kbd class="shortcut-hint">ESC</kbd>
+      </div>
+
+      <!-- 提供商列表 -->
+      <div id="switcher-list" class="switcher-list">
+        <!-- JS 动态填充 -->
+      </div>
+
+      <!-- 底部提示 -->
+      <div class="switcher-footer">
+        <span>↑↓ 导航</span>
+        <span>↵ 切换</span>
+        <span>ESC 关闭</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 快速配置弹窗（输入 API Key） ═══ -->
+  <div id="config-modal" class="modal hidden">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h3 id="config-title">配置</h3>
+        <button class="modal-close" onclick="closeConfig()">&times;</button>
+      </div>
+      <div id="config-body"></div>
+    </div>
+  </div>
+
+  <!-- ═══ API 文档侧栏 ═══ -->
+  <div id="api-drawer" class="drawer hidden">
+    <div class="drawer-panel">
+      <div class="drawer-header">
+        <h3>📡 API 文档</h3>
+        <button class="modal-close" onclick="closeDrawer()">&times;</button>
+      </div>
+      <div class="drawer-body">
+        <div class="api-section">
+          <h4>对话</h4>
+          <pre class="code-block">POST /api/chat
+{
+  "messages": [
+    {"role": "user", "content": "你好"}
+  ]
+}</pre>
+        </div>
+        <div class="api-section">
+          <h4>切换提供商</h4>
+          <pre class="code-block">POST /api/providers/switch
+{"provider_id": "deepseek"}</pre>
+        </div>
+        <div class="api-section">
+          <h4>配置提供商</h4>
+          <pre class="code-block">POST /api/providers/config
+{
+  "provider_id": "deepseek",
+  "api_key": "sk-xxx",
+  "model": "deepseek-chat"
+}</pre>
+        </div>
+        <div class="api-section">
+          <h4>流式对话 (SSE)</h4>
+          <pre class="code-block">POST /api/chat/stream
+→ data: 你好
+→ data: ！
+→ data: [DONE]</pre>
+        </div>
+        <p class="hint" style="margin-top:12px">
+          💡 在代码中直接调用 <code>http://&lt;树莓派IP&gt;:9000/api/chat</code>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Toast ═══ -->
+  <div id="toast" class="toast hidden"></div>
+
+  <!-- ═══ 浮动按钮 ═══ -->
+  <button class="fab" id="fab-docs" onclick="openDrawer()" title="API 文档">📡</button>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
